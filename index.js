@@ -104,7 +104,8 @@ app.get('/test/', (req, res) => {
         !tokenId ||
         !tokenSecret ||
         !scriptId ||
-        !scriptDeploymentId
+        !scriptDeploymentId ||
+        !method
     ) {
         return res.status(400).send('Missing required query parameters');
     }
@@ -167,7 +168,7 @@ function createOAuthSignature(params, consumerSecret, tokenSecret, httpMethod, b
 
     // Construct the signature base string
     const baseString = [
-        httpMethod.toUpperCase(),
+        httpMethod,
         percentEncode(baseUrl),
         percentEncode(sortedParams)
     ].join('&');
