@@ -59,7 +59,8 @@ app.get('/', (req, res) => {
     // const oauthData = oauth.authorize(request_data, token);
     // const authorizationHeader = oauth.toHeader(oauthData);
 
-    res.json(headers.Authorization);
+
+    res.send(headers.Authorization);
 });
 
 const port = process.env.PORT || 5006;
