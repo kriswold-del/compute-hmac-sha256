@@ -1,66 +1,107 @@
 require('dotenv').config();
 const express = require('express');
-const OAuth = require('oauth-1.0a');
+const https = require('https');
 const crypto = require('crypto');
 
 const app = express();
 
+function generateNonce(length = 16) {
+    return crypto.randomBytes(length).toString('hex');
+}
+
+function createSignature(
+    CONSUMER_SECRET,
+    TOKEN_SECRET,
+    SCRIPT_DEPLOYMENT_ID,
+    CONSUMER_KEY,
+    OAUTH_NONCE,
+    TIMESTAMP,
+    TOKEN_ID,
+    OAUTH_VERSION,
+    SCRIPT_ID,
+    HTTP_METHOD,
+    BASE_URL
+) {
+    const key = `${CONSUMER_SECRET}&${TOKEN_SECRET}`;
+    const data = `deploy=${SCRIPT_DEPLOYMENT_ID}&oauth_consumer_key=${CONSUMER_KEY}&oauth_nonce=${OAUTH_NONCE}&oauth_signature_method=HMAC-SHA256&oauth_timestamp=${TIMESTAMP}&oauth_token=${TOKEN_ID}&oauth_version=${OAUTH_VERSION}&script=${SCRIPT_ID}`;
+    const payload = `${HTTP_METHOD}&${encodeURIComponent(BASE_URL)}&${encodeURIComponent(data)}`;
+    const hmac = crypto.createHmac('sha256', key);
+    const digest = hmac.update(payload).digest('hex');
+    const signature = Buffer.from(digest).toString('base64');
+    return signature;
+}
+
 app.get('/', (req, res) => {
     const {
+        netsuiteAccountId,
         consumerKey,
         consumerSecret,
-        tokenKey,
+        tokenId,
         tokenSecret,
-        realm,
-        url,
+        scriptId,
+        scriptDeploymentId,
         method
     } = req.query;
 
-    if (!consumerKey || !consumerSecret || !tokenKey || !tokenSecret || !url || !method) {
-
+    if (
+        !netsuiteAccountId ||
+        !consumerKey ||
+        !consumerSecret ||
+        !tokenId ||
+        !tokenSecret ||
+        !scriptId ||
+        !scriptDeploymentId
+    ) {
         return res.status(400).send('Missing required query parameters');
     }
-    var oauth = new OAuth({
-        "hash_function" : function(base_string, key) {
-            return crypto.createHmac('sha1', key).update(base_string).digest('base64');
+
+    const HTTP_METHOD = method ? method.toUpperCase() : 'GET';
+    const OAUTH_VERSION = '1.0';
+    const OAUTH_NONCE = generateNonce();
+    const TIMESTAMP = Math.floor(Date.now() / 1000);
+    const BASE_URL = `https://${netsuiteAccountId}.restlets.api.netsuite.com/app/site/hosting/restlet.nl`;
+
+    const signature = createSignature(
+        consumerSecret,
+        tokenSecret,
+        scriptDeploymentId,
+        consumerKey,
+        OAUTH_NONCE,
+        TIMESTAMP,
+        tokenId,
+        OAUTH_VERSION,
+        scriptId,
+        HTTP_METHOD,
+        BASE_URL
+    );
+
+    const authorizationHeader = `OAuth oauth_signature="${signature}", oauth_version="${OAUTH_VERSION}", oauth_nonce="${OAUTH_NONCE}", oauth_signature_method="HMAC-SHA256", oauth_consumer_key="${consumerKey}", oauth_token="${tokenId}", oauth_timestamp="${TIMESTAMP}", realm="${netsuiteAccountId}"`;
+    const requestUrl = `${BASE_URL}?script=${scriptId}&deploy=${scriptDeploymentId}`;
+
+    https.get(
+        requestUrl,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authorizationHeader
+            }
         },
-        "consumer" : { "key" : consumerKey, "secret" : consumerSecret },
-        "signature_method" : "HMAC-SHA256"
+        (response) => {
+            let data = [];
+            response.on('data', chunk => data.push(chunk));
+            response.on('end', () => {
+                const responseBody = Buffer.concat(data).toString();
+                res.send({
+                    authorizationHeader,
+                    requestUrl,
+                    statusCode: response.statusCode,
+                    response: responseBody
+                });
+            });
+        }
+    ).on('error', (err) => {
+        res.status(500).send(err.message);
     });
-
-    const oauthToken = { "key" : tokenKey, "secret" : tokenSecret },
-        request = { "url" : url, "method" : method };
-
-            let headers = oauth.toHeader(oauth.authorize(request, oauthToken));
-            headers.Authorization += `,realm="${realm}"`;
-
-
-    // const oauth = OAuth({
-    //     consumer: {
-    //         key: consumerKey,
-    //         secret: consumerSecret
-    //     },
-    //     signature_method: 'HMAC-SHA256',
-    //     realm: realm,
-    //     hash_function(base_string, key) {
-    //         return crypto.createHmac('sha256', key)
-    //             .update(base_string)
-    //             .digest('base64');
-    //     }
-    // });
-    //
-    // const token = {
-    //     key: tokenKey,
-    //     secret: tokenSecret
-    // };
-    //
-    // const request_data = { url, method };
-    //
-    // const oauthData = oauth.authorize(request_data, token);
-    // const authorizationHeader = oauth.toHeader(oauthData);
-
-
-    res.send(headers.Authorization);
 });
 
 const port = process.env.PORT || 5006;
