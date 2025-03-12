@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
         request = { "url" : url, "method" : method };
 
             let headers = oauth.toHeader(oauth.authorize(request, oauthToken));
-            headers.Authorization += `,realm=${realm}`;
+            headers.Authorization += `,realm="${realm}"`;
 
 
     // const oauth = OAuth({
