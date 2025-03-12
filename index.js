@@ -120,7 +120,8 @@ app.get('/test/', (req, res) => {
         oauth_signature_method: 'HMAC-SHA256', // IMPORTANT for updated NetSuite
         oauth_version: '1.0',
         script: scriptId,
-        deploy: scriptDeploymentId
+        deploy: scriptDeploymentId,
+        realm: netsuiteAccountId.replace('-sb1', '_SB1')
     };
 
 // Generate signature
