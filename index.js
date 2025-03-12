@@ -142,7 +142,7 @@ app.get('/test/', (req, res) => {
 // Output
     console.log('Authorization Header:', oauthHeader + ", realm=\"" + params.realm + "\"");
     console.log('Request URL:', requestUrl);
-    res.send(oauthHeader);
+    res.send(oauthHeader+ ", realm=\"" + params.realm + "\"");
 })
 
 
