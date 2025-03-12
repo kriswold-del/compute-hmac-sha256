@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
             return crypto.createHmac('sha1', key).update(base_string).digest('base64');
         },
         "consumer" : { "key" : consumerKey, "secret" : consumerSecret },
-        "signature_method" : "HMAC-SHA1"
+        "signature_method" : "HMAC-SHA256"
     });
 
     const oauthToken = { "key" : tokenKey, "secret" : tokenSecret },
