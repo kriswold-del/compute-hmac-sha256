@@ -75,7 +75,11 @@ app.get('/', (req, res) => {
         BASE_URL
     );
 
-    const authorizationHeader = `OAuth oauth_signature="${signature}", oauth_version="${OAUTH_VERSION}", oauth_nonce="${OAUTH_NONCE}", oauth_signature_method="HMAC-SHA256", oauth_consumer_key="${consumerKey}", oauth_token="${tokenId}", oauth_timestamp="${TIMESTAMP}", realm="${netsuiteAccountId}"`;
+    var realm = netsuiteAccountId;
+    if(netsuiteAccountId.includes('sb1')) {
+        realm = netsuiteAccountId.replace('-sb1', '_SB1');
+    }
+    const authorizationHeader = `OAuth oauth_signature="${signature}", oauth_version="${OAUTH_VERSION}", oauth_nonce="${OAUTH_NONCE}", oauth_signature_method="HMAC-SHA256", oauth_consumer_key="${consumerKey}", oauth_token="${tokenId}", oauth_timestamp="${TIMESTAMP}", realm="${realm}"`;
     const requestUrl = `${BASE_URL}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
     https.get(
