@@ -134,15 +134,15 @@ app.get('/test/', (req, res) => {
     const oauthHeader = 'OAuth ' + Object.keys(params)
         .filter(key => key.startsWith('oauth_'))
         .map(key => `${percentEncode(key)}="${percentEncode(params[key])}"`)
-        .join(', ');
+        .join(',');
 
 // Request URL with query params (script & deploy)
     const requestUrl = `${baseUrl}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
 // Output
-    console.log('Authorization Header:', oauthHeader + ", realm=\"" + params.realm + "\"");
+    console.log('Authorization Header:', oauthHeader + ",realm=\"" + params.realm + "\"");
     console.log('Request URL:', requestUrl);
-    res.send(oauthHeader+ ", realm=\"" + params.realm + "\"");
+    res.send(oauthHeader+ ",realm=\"" + params.realm + "\"");
 })
 
 
