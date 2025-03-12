@@ -26,8 +26,8 @@ function createSignature(
     const data = `deploy=${SCRIPT_DEPLOYMENT_ID}&oauth_consumer_key=${CONSUMER_KEY}&oauth_nonce=${OAUTH_NONCE}&oauth_signature_method=HMAC-SHA256&oauth_timestamp=${TIMESTAMP}&oauth_token=${TOKEN_ID}&oauth_version=${OAUTH_VERSION}&script=${SCRIPT_ID}`;
     const payload = `${HTTP_METHOD}&${encodeURIComponent(BASE_URL)}&${encodeURIComponent(data)}`;
     const hmac = crypto.createHmac('sha256', key);
-    const digest = hmac.update(payload).digest('hex');
-    const signature = Buffer.from(digest).toString('base64');
+    const digest = hmac.update(payload).digest('base64');
+    const signature = Buffer.from(digest)//.toString('base64');
     return signature;
 }
 
@@ -84,6 +84,10 @@ app.get('/', (req, res) => {
 
     res.send(authorizationHeader);
 });
+
+app.get('/test/', (req, res) => {
+
+})
 
 const port = process.env.PORT || 5006;
 app.listen(port, () => console.log(`Server running on port ${port}`));
