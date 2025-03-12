@@ -226,7 +226,7 @@ app.get('/test2/', (req, res) => {
             key: tokenId,
             secret: tokenSecret
         };
-    const baseUrl = `https://${netsuiteAccountId}.restlets.api.netsuite.com/app/site/hosting/restlet.nl??script=${scriptId}&deploy=${scriptDeploymentId}`;
+    const baseUrl = `https://${netsuiteAccountId}.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=${scriptId}&deploy=${scriptDeploymentId}`;
         const request_data = {
             url: baseUrl,
             method: method,
