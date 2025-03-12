@@ -141,7 +141,7 @@ app.get('/test/', (req, res) => {
     const requestUrl = `${baseUrl}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
 
-    const orderedHeader = `OAuth realm="${params.realm}",oauth_consumer_key="${params.oauth_consumer_key}",oauth_token="${params.oauth_token}",oauth_signature_method="HMAC-SHA256",oauth_timestamp="${params.oauth_timestamp}",oauth_nonce="${params.oauth_nonce}",oauth_version="1.0",oauth_signature="${params.oauth_signature}"`;
+    const orderedHeader = `OAuth realm="${params.realm}",oauth_consumer_key="${params.oauth_consumer_key}",oauth_token="${params.oauth_token}",oauth_signature_method="HMAC-SHA256",oauth_timestamp="${params.oauth_timestamp}",oauth_nonce="${params.oauth_nonce}",oauth_version="1.0",oauth_signature="${percentEncode(params.oauth_signature)}"`;
 // Output
     console.log('Authorization Header:',orderedHeader);
     console.log('Request URL:', requestUrl);
