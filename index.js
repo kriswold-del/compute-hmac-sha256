@@ -82,30 +82,7 @@ app.get('/', (req, res) => {
     const authorizationHeader = `OAuth oauth_signature="${signature}", oauth_version="${OAUTH_VERSION}", oauth_nonce="${OAUTH_NONCE}", oauth_signature_method="HMAC-SHA256", oauth_consumer_key="${consumerKey}", oauth_token="${tokenId}", oauth_timestamp="${TIMESTAMP}", realm="${realm}"`;
     const requestUrl = `${BASE_URL}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
-    https.get(
-        requestUrl,
-        {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": authorizationHeader
-            }
-        },
-        (response) => {
-            let data = [];
-            response.on('data', chunk => data.push(chunk));
-            response.on('end', () => {
-                const responseBody = Buffer.concat(data).toString();
-                res.send({
-                    authorizationHeader,
-                    requestUrl,
-                    statusCode: response.statusCode,
-                    response: responseBody
-                });
-            });
-        }
-    ).on('error', (err) => {
-        res.status(500).send(err.message);
-    });
+    res.send(authorizationHeader);
 });
 
 const port = process.env.PORT || 5006;
