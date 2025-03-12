@@ -139,10 +139,12 @@ app.get('/test/', (req, res) => {
 // Request URL with query params (script & deploy)
     const requestUrl = `${baseUrl}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
+
+    const orderedHeader = `OAuth realm="${params.realm}",oauth_consumer_key="${params.oauth_consumer_key}",oauth_token="${params.oauth_token}",oauth_signature_method="HMAC-SHA256",oauth_timestamp="${params.oauth_timestamp}",oauth_nonce="${params.oauth_nonce}",oauth_version="1.0",oauth_signature="${params.oauth_signature}"`;
 // Output
-    console.log('Authorization Header:', oauthHeader + ",realm=\"" + params.realm + "\"");
+    console.log('Authorization Header:',orderedHeader);
     console.log('Request URL:', requestUrl);
-    res.send(oauthHeader+ ",realm=\"" + params.realm + "\"");
+    res.send(orderedHeader);
 })
 
 
