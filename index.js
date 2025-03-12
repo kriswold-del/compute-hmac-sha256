@@ -140,7 +140,7 @@ app.get('/test/', (req, res) => {
     const requestUrl = `${baseUrl}?script=${scriptId}&deploy=${scriptDeploymentId}`;
 
 // Output
-    console.log('Authorization Header:', oauthHeader);
+    console.log('Authorization Header:', oauthHeader + ", realm=\"" + params.realm + "\"");
     console.log('Request URL:', requestUrl);
     res.send(oauthHeader);
 })
