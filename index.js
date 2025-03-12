@@ -17,34 +17,49 @@ app.get('/', (req, res) => {
     } = req.query;
 
     if (!consumerKey || !consumerSecret || !tokenKey || !tokenSecret || !url || !method) {
+
         return res.status(400).send('Missing required query parameters');
     }
-
-    const oauth = OAuth({
-        consumer: {
-            key: consumerKey,
-            secret: consumerSecret
+    var oauth = new OAuth({
+        "hash_function" : function(base_string, key) {
+            return crypto.createHmac('sha1', key).update(base_string).digest('base64');
         },
-        signature_method: 'HMAC-SHA256',
-        realm: realm,
-        hash_function(base_string, key) {
-            return crypto.createHmac('sha256', key)
-                .update(base_string)
-                .digest('base64');
-        }
+        "consumer" : { "key" : consumerKey, "secret" : consumerSecret },
+        "signature_method" : "HMAC-SHA1"
     });
 
-    const token = {
-        key: tokenKey,
-        secret: tokenSecret
-    };
+    const oauthToken = { "key" : tokenKey, "secret" : tokenSecret },
+        request = { "url" : url, "method" : method };
 
-    const request_data = { url, method };
+            let headers = oauth.toHeader(oauth.authorize(request, oauthToken));
+            headers.Authorization += `,realm=${REALM}`;
 
-    const oauthData = oauth.authorize(request_data, token);
-    const authorizationHeader = oauth.toHeader(oauthData);
 
-    res.json(authorizationHeader);
+    // const oauth = OAuth({
+    //     consumer: {
+    //         key: consumerKey,
+    //         secret: consumerSecret
+    //     },
+    //     signature_method: 'HMAC-SHA256',
+    //     realm: realm,
+    //     hash_function(base_string, key) {
+    //         return crypto.createHmac('sha256', key)
+    //             .update(base_string)
+    //             .digest('base64');
+    //     }
+    // });
+    //
+    // const token = {
+    //     key: tokenKey,
+    //     secret: tokenSecret
+    // };
+    //
+    // const request_data = { url, method };
+    //
+    // const oauthData = oauth.authorize(request_data, token);
+    // const authorizationHeader = oauth.toHeader(oauthData);
+
+    res.json(headers.Authorization);
 });
 
 const port = process.env.PORT || 5006;
