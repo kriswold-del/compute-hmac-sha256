@@ -234,7 +234,7 @@ app.get('/test2/', (req, res) => {
         const oauthData = oauth.authorize(request_data, token);
         const authorizationHeader = oauth.toHeader(oauthData);
 
-        return res.send(authorizationHeader);
+        return res.send(authorizationHeader.Authorization);
 
 })
 const port = process.env.PORT || 5006;
